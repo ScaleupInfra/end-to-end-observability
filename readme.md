@@ -1,4 +1,4 @@
-# End-to-End Observability Hello World Application
+# End-to-End Observability
 
 This project demonstrates an end-to-end observability setup using the Grafana stack: **Grafana**, **Prometheus**, **Loki**, and **Tempo**. The application uses **OpenTelemetry (OTel)** to generate traces and metrics, and **Winston-Loki** to produce logs.
 
