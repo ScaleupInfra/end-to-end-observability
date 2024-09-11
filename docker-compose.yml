@@ -1,6 +1,20 @@
 version: '3.8'
 
 services:
+  app:
+    image: e2e-obs-app
+    build: .
+    command: npm run index-with-tracer
+    ports:
+      - "8080:8080"
+    environment:
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT}
+    depends_on:
+      tempo:
+        condition: service_started
+      tracetest-agent:
+        condition: service_started
+
   prometheus:
     image: prom/prometheus
     volumes:
@@ -35,8 +49,8 @@ services:
       - "14268:14268"  # jaeger ingest
       - "3200:3200"   # tempo
       - "9095:9095" # tempo grpc
-      - "4417:4317"  # otlp grpc
-      - "4418:4318"  # otlp http
+      - "4317:4317"  # otlp grpc
+      - "4318:4318"  # otlp http
       - "9411:9411"   # zipkin
     depends_on:
       - init
@@ -51,11 +65,14 @@ services:
       - ./grafana:/var/lib/grafana
 
   tracetest-agent:
-    image: kubeshop/tracetest-agent
+    image: kubeshop/tracetest-agent:latest
+    command:
+      - "--mode=verbose"
     environment:
-      - TRACETEST_API_KEY=aQnldKjSg
-      - TRACETEST_ENVIRONMENT_ID=ttenv_d6d8277dfb4a01c4
-    ports:
-      - 4317:4317
-      - 4318:4318
+      # Get the required information here: https://app.tracetest.io/retrieve-token
+      - TRACETEST_API_KEY=${TRACETEST_TOKEN}
+      - TRACETEST_ENVIRONMENT_ID=${TRACETEST_ENVIRONMENT_ID}
+    # ports:
+    #   - 4317:4317
+    #   - 4318:4318
 
