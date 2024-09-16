@@ -2,11 +2,11 @@ version: '3.8'
 
 services:
   app:
-    image: e2e-obs-app
+    image: garvit3835/tracetest-app
     build: .
     command: npm run index-with-tracer
     ports:
-      - "8080:8080"
+      - "8081:8081"
     environment:
       - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=${OTEL_EXPORTER_OTLP_TRACES_ENDPOINT}
     depends_on:
@@ -46,14 +46,25 @@ services:
       - ./tempo.yaml:/etc/tempo.yaml
       - ./tempo-data:/var/tempo
     ports:
-      - "14268:14268"  # jaeger ingest
       - "3200:3200"   # tempo
       - "9095:9095" # tempo grpc
-      - "4317:4317"  # otlp grpc
-      - "4318:4318"  # otlp http
-      - "9411:9411"   # zipkin
     depends_on:
       - init
+
+  tracetest-agent:
+    image: kubeshop/tracetest-agent:v1.5.5
+    environment:
+      - TRACETEST_API_KEY=${TRACETEST_TOKEN}
+      - TRACETEST_ENVIRONMENT_ID=${TRACETEST_ENVIRONMENT_ID}
+
+  otel-collector:
+    image: otel/opentelemetry-collector:0.86.0
+    command: [ "--config=/etc/otel-collector.yaml" ]
+    volumes:
+      - ./otel-collector.yaml:/etc/otel-collector.yaml
+    depends_on:
+      - tempo
+      - tracetest-agent
 
   grafana:
     image: grafana/grafana:latest
@@ -63,16 +74,4 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - ./grafana:/var/lib/grafana
-
-  tracetest-agent:
-    image: kubeshop/tracetest-agent:latest
-    command:
-      - "--mode=verbose"
-    environment:
-      # Get the required information here: https://app.tracetest.io/retrieve-token
-      - TRACETEST_API_KEY=${TRACETEST_TOKEN}
-      - TRACETEST_ENVIRONMENT_ID=${TRACETEST_ENVIRONMENT_ID}
-    # ports:
-    #   - 4317:4317
-    #   - 4318:4318
 

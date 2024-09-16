@@ -1,0 +1,28 @@
+receivers:
+  otlp:
+    protocols:
+      # grpc:
+      http:
+
+processors:
+  batch:
+    timeout: 100ms
+
+exporters:
+  logging:
+    loglevel: debug
+  otlphttp/tempo:  # First HTTP exporter to Tempo
+    endpoint: http://tempo:4318
+    tls:
+      insecure: true
+  otlphttp/tracetest:  # Second HTTP exporter to Tracetest agent
+    endpoint: http://tracetest-agent:4318
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces/1:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlphttp/tempo, otlphttp/tracetest]

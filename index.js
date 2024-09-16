@@ -14,20 +14,8 @@ const requestCounter = meter.createCounter('http_requests', {
 // Middleware to increment the counter on every request
 app.use((req, res, next) => {
   // Increment the request counter
-  // const span = tracer.startSpan('incoming_request', {
-  //   attributes: {
-  //     method: req.method,
-  //     route: req.path,
-  //   },
-  // });
   logger.info(`Received request for ${req.url}`);
   requestCounter.add(1, { method: req.method, route: req.path });
-
-  // End the span when the request is complete
-  // res.on('finish', () => {
-  //   span.end();
-  // });
-
   next();
 });
 
@@ -43,6 +31,7 @@ app.get('/', (req, res) => {
 });
 
 // Start the server
-app.listen(8080, () => {
+app.listen(8081, () => {
   logger.info('Server is running on http://localhost:5000');
+  console.log('Server is running on http://localhost:5000');
 });

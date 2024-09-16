@@ -8,7 +8,7 @@ const logger = winston.createLogger({
   format: winston.format.json(),
   transports: [
     new LokiTransport({
-      host: 'http://localhost:3100', // Assuming Loki is accessible at this URL
+      host: 'http://loki:3100', // Assuming Loki is accessible at this URL
       labels: { job: 'loki-service' },
       json: true,
       batching: true,
