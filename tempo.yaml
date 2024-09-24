@@ -1,6 +1,6 @@
 stream_over_http_enabled: true
 server:
-  http_listen_port: 3200
+  http_listen_port: 80
   log_level: info
 
 query_frontend:
